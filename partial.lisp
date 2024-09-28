@@ -33,7 +33,7 @@ datatype desc: https://nifti.nimh.nih.gov/nifti-1/documentation/faq#Q19
 
 	'a'=>1,  8
 	'c'=>1,  8
-	's'=>2, 16
+	's'=>2, 1
 	'l'=>4, 32
 	'f'=>4, 32
 
@@ -225,57 +225,56 @@ extension      43 348  4 c,count=>4
 
 ;(with-open-file (s "../../work/rosetta-nii/wf-mp2rage-7t_2017087.nii.gz" :element-type 'unsigned-byte) (setq *td* (lisp-binary:read-binary 'nifti s)))
 (lisp-binary:defbinary nifti
-    (:export t :byte-order :little-endian)
-    (sizeof_hdr 0 :type (unsigned-byte 32)) ; must be 348 (end is 352)
-    (data_type #() :type (simple-array (unsigned-byte 8) (10)))
-    (db_name   #() :type (simple-array (unsigned-byte 8) (18)))
-    (extents 0 :type (unsigned-byte 32))
-    (session_error 0 :type (unsigned-byte 16))
-    (regular 0 :type (unsigned-byte 8))
-    (dim_info 0 :type (unsigned-byte 8))
-    (dim 0  :type (simple-array (unsigned-byte 16) (8)))
-    (intent_p1 0 :type (unsigned-byte 32))
-    (intent_p2 0 :type (unsigned-byte 32))
-    (intent_p3 0 :type (unsigned-byte 32))
-    (intent_code 0 :type (unsigned-byte 16))
-    (datatype  0 :type (unsigned-byte 16))
-    ; bits per voxel; total bytes = prod(dim)* bitpix / 8
-    (bitpix 0 :type (unsigned-byte 16))
-    (slice_start 0 :type (unsigned-byte 16))
-    ;; something wrong here?
-    (pixdim #() :type (simple-array float (8)))
-    ;; start of image data (>= 352) ;; 2640 in test.nii
-    (vox_offset 0 :type float)
+  (:export t :byte-order :little-endian)
+  (sizeof_hdr 0 :type (unsigned-byte 32)) ; must be 348 (end is 352)
+  (data_type #() :type (simple-array (unsigned-byte 8) (10)))
+  (db_name   #() :type (simple-array (unsigned-byte 8) (18)))
+  (extents 0 :type (unsigned-byte 32))
+  (session_error 0 :type (unsigned-byte 16))
+  (regular 0 :type (unsigned-byte 8))
+  (dim_info 0 :type (unsigned-byte 8))
+  (dim 0  :type (simple-array (unsigned-byte 16) (8)))
+  (intent_p1 0 :type float)
+  (intent_p2 0 :type (unsigned-byte 32))
+  (intent_p3 0 :type (unsigned-byte 32))
+  (intent_code 0 :type (unsigned-byte 16))
+  (datatype  0 :type (unsigned-byte 16))
+  ; bits per voxel; total bytes = prod(dim)* bitpix / 8
+  (bitpix 0 :type (unsigned-byte 16))
+  (slice_start 0 :type (unsigned-byte 16))
+  ;; something wrong here?
+  (pixdim #() :type (simple-array float (8)))
+  ;; start of image data (>= 352) ;; 2640 in test.nii
+  (vox_offset 0 :type float)
+  (scl_slope 0 :type float)
+  (scl_inter 0 :type float)
+  (slice_end "z" :type (unsigned-byte 8))
+  (slice_code      0 :type (unsigned-byte 8)) ;20 122  1 c
+  (xyzt_units      0 :type (unsigned-byte 8)) ;21 123  1 c,val=>10}, # 8 = sec, 2=mm
+  (cal_max         0 :type float) ;22 124  4 f
+  (cal_min         0 :type float) ;23 128  4 f
+  (slice_duration  0 :type float) ;24 132  4 f
+  (toffset         0 :type float) ;25 136  4 f
+  (glmax           0 :type float) ;26 140  4 l
+  (glmin           0 :type float) ;27 144  4 l
+  (descrip         0 :type (simple-array (unsigned-byte 8) (80))) ;28 148 80 a,length=>80,
+  (aux_file        0 :type (simple-array (unsigned-byte 8) (24))) ;29 228 24 a,length=>24
+  (qform_code      0 :type (unsigned-byte 16)) ;30 252  2 s
+  (sform_code      0 :type (unsigned-byte 16)) ;31 254  2 s
+  (quatern_b       0 :type float) ;32 256  4 f
+  (quatern_c       0 :type float) ;33 260  4 f
+  (quatern_d       0 :type float) ;34 264  4 f
+  (quatern_x       0 :type float) ;35 268  4 f
+  (quatern_y       0 :type float) ;36 272  4 f
+  (quatern_z       0 :type float) ;37 276  4 f
+  (srow_x          0 :type (simple-array float (4))) ;38 280 16 f,count=>4
+  (srow_y          0 :type (simple-array float (4))) ;39 296 16 f,count=>4
+  (srow_z          0 :type (simple-array float (4))) ;40 312 16 f,count=>4
+  (intent_name     0 :type (simple-array (unsigned-byte 8) (16))) ;41 328 16 a,length=>16
+  (magic           0 :type (simple-array (unsigned-byte 8) (4))) ;42 344  4 a,length=>4,val=>"n+1"
+  (extension      0 :type (counted-string 4)) ;43 348  4 c,count=>4
 )
-
-; here
-    (scl_slope)      17 112  4 f
-    (scl_inter)      18 116  4 f
-    (slice_end)      19 120  2 s,key=>z
-    () slice_code     20 122  1 c
-    () xyzt_units     21 123  1 c,val=>10}, # 8 = sec, 2=mm
-    () cal_max        22 124  4 f
-    () cal_min        23 128  4 f
-    () slice_duration 24 132  4 f
-    () toffset        25 136  4 f
-    () glmax          26 140  4 l
-    () glmin          27 144  4 l
-    () descrip        28 148 80 a,length=>80,
-    () aux_file       29 228 24 a,length=>24
-    () qform_code     30 252  2 s
-    () sform_code     31 254  2 s
-    () quatern_b      32 256  4 f
-    () quatern_c      33 260  4 f
-    () quatern_d      34 264  4 f
-    () quatern_x      35 268  4 f
-    () quatern_y      36 272  4 f
-    () quatern_z      37 276  4 f
-    () srow_x         38 280 16 f,count=>4
-    () srow_y         39 296 16 f,count=>4
-    () srow_z         40 312 16 f,count=>4
-    () intent_name    41 328 16 a,length=>16
-    () magic          42 344  4 a,length=>4,val=>"n+1"
-    () extension      43 348  4 c,count=>4
     (#imag undef, # image data)
+
 
 (image #() :type (simple-array (unsigned-byte 8) (image-size))))
